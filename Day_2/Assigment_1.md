@@ -56,10 +56,6 @@ function example() public pure returns (uint256) {
 }
 ```
 
-> ⚠️ If you do `Person storage p = user;`, you get a **storage pointer** — changes to `p` will modify the blockchain state.
-
----
-
 ## 3. Mappings in Storage
 
 Mappings **only exist in storage** — they cannot be declared in memory or calldata. They do not store data contiguously; instead, each value is stored at a slot computed by a **keccak256 hash**:
@@ -112,63 +108,3 @@ function example(uint256 n) public pure {
 ## 5. Calldata
 
 `calldata` is a **read-only**, non-persistent area that holds the input data of an external function call. It is the cheapest location to read from. You cannot write to calldata.
-
-```solidity
-function process(uint256[] calldata ids) external pure returns (uint256) {
-    return ids.length;
-}
-```
-
----
-
-## Quick Reference Cheat Sheet
-
-```
-STATE VARIABLES
-├── Primitives (uint, bool, address)  → storage (packed into slots)
-├── Structs                           → storage (sequential slots, packed fields)
-├── Mappings                          → storage only (keccak256-derived slots)
-├── Fixed Arrays                      → storage (slot N + index)
-└── Dynamic Arrays                    → storage (length at slot N, data at keccak256(N))
-
-FUNCTION SCOPE
-├── Local primitives                  → stack (up to 16 variables)
-├── Local structs / arrays            → memory (temporary, wiped after call)
-├── External input parameters         → calldata (read-only, cheapest)
-└── Storage pointer (Type storage p)  → points INTO storage (modifies state)
-```
-
----
-
-## Gas Cost Summary
-
-| Action                  | Cost Approx.          |
-|-------------------------|-----------------------|
-| Write to storage (cold) | ~20,000 gas           |
-| Write to storage (warm) | ~2,900 gas            |
-| Read from storage       | ~2,100 gas            |
-| Read/write memory       | ~3 gas per word       |
-| Read calldata           | ~3 gas per byte       |
-
-> 💡 **Rule of thumb:** Minimize storage writes — they are by far the most expensive EVM operation. Use `memory` for intermediate computations and only write the final result to storage.
-
----
-
-## Putting It All Together — ERC-20 Example
-
-```solidity
-// All stored in STORAGE (persistent, on-chain)
-string  public name;                                          // Slot 0
-string  public symbol;                                        // Slot 1
-uint8   public decimals;                                      // Slot 2
-uint256 public totalSupply;                                   // Slot 3
-
-mapping(address => uint256)                     private _balances;    // Slot 4
-mapping(address => mapping(address => uint256)) private _allowances;  // Slot 5
-
-// Inside a function — stored in MEMORY (temporary)
-function getInfo() public view returns (string memory) {
-    string memory info = string(abi.encodePacked(name, " (", symbol, ")"));
-    return info; // 'info' lives only during this call
-}
-```
