@@ -104,7 +104,7 @@ contract Register {
         return true;
     }
 
-    function ExpelStudent(address _address) internal {
+    function ExpelStudent(address _address) public {
         for (uint i = 0; i < students.length; i++) {
             if (students[i].studentAddress == _address) {
                 students[i] = students[students.length - 1];
@@ -131,7 +131,7 @@ contract Register {
         return true;
     }
 
-    function SackStaff(address _address) internal {
+    function SackStaff(address _address) public {
         for (uint i = 0; i < staffs.length; i++) {
             if (staffs[i].staffAddress == _address) {
                 staffs[i] = staffs[students.length - 1];
