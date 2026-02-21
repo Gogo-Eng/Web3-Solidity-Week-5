@@ -114,7 +114,7 @@ contract Register {
         }
     }
 
-    function EmployTeacher(string memory _name, uint16 _level, address _address) public returns(bool){
+    function EmployStaff(string memory _name, uint16 _level, address _address) public returns(bool){
         require(_level == 100 || _level == 200 || _level == 300 || _level == 400, "Invalid level");
         
         staffId ++;
